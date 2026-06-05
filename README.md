@@ -1,152 +1,381 @@
-# Portfolio-website-
+# Stephanie-design-
 const express = require("express");
 const app = express();
 
-app.use(express.json());
+app.use(express.json({limit:"10mb"}));
 
-// store messages in memory
-let messages = [];
+let orders = [];
 
-// MAIN WEBSITE (HTML + CSS + JS together)
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "Stephanie123";
+
 app.get("/", (req, res) => {
-  res.send(`
+res.send(`
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Stephanie Portfolio</title>
+<title>Stephanie Fashion Trend</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: black;
-      color: white;
-      text-align: center;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    header {
-      padding: 20px;
-      background: #111;
-    }
+<style>
 
-    h1 {
-      color: hotpink;
-    }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
 
-    section {
-      padding: 20px;
-    }
+body{
+background:#111;
+color:white;
+}
 
-    .images img {
-      width: 200px;
-      margin: 10px;
-      border-radius: 10px;
-    }
+header{
+background:black;
+padding:25px;
+text-align:center;
+border-bottom:2px solid hotpink;
+}
 
-    input {
-      padding: 10px;
-      margin: 5px;
-      width: 220px;
-    }
+header h1{
+color:hotpink;
+}
 
-    button {
-      padding: 10px 20px;
-      background: hotpink;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
+.hero{
+padding:40px;
+text-align:center;
+}
 
-    button:hover {
-      background: deeppink;
-    }
+.gallery{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+padding:20px;
+}
 
-    #status {
-      margin-top: 10px;
-      color: lightgreen;
-    }
-  </style>
+.gallery img{
+width:280px;
+height:350px;
+object-fit:cover;
+border-radius:10px;
+}
+
+form{
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:5px;
+}
+
+button{
+background:hotpink;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:deeppink;
+}
+
+.admin{
+text-align:center;
+padding:30px;
+}
+
+#result{
+margin-top:10px;
+color:lightgreen;
+}
+
+</style>
 </head>
 
 <body>
 
-  <header>
-    <h1>Stephanie Portfolio</h1>
-    <p>Fashion Designer | Creative Stylist</p>
-  </header>
+<header>
+<h1>Stephanie Fashion Trend</h1>
+<p>Luxury Fashion Designer</p>
+<p>Order Line: 08047829074</p>
+</header>
 
-  <section>
-    <h2>About Me</h2>
-    <p>
-      Welcome to Stephanie Fashion Trend. I create modern, elegant fashion designs.
-    </p>
-  </section>
+<section class="hero">
+<h2>Welcome To Stephanie Fashion Trend</h2>
+<p>Elegant Designs • Custom Sewing • Modern Fashion</p>
+</section>
 
-  <section>
-    <h2>My Designs</h2>
-    <div class="images">
-      <img src="https://images.unsplash.com/photo-1521334884684-d80222895322">
-      <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38">
-      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b">
-    </div>
-  </section>
+<section>
 
-  <section>
-    <h2>Contact / Order</h2>
+<h2 style="text-align:center">Portfolio</h2>
 
-    <input id="name" type="text" placeholder="Your Name"><br>
-    <input id="message" type="text" placeholder="Your Order / Message"><br>
+<div class="gallery">
 
-    <button onclick="sendMessage()">Send</button>
+<img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b">
 
-    <p id="status"></p>
-  </section>
+<img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c">
 
-  <script>
-    async function sendMessage() {
-      const name = document.getElementById("name").value;
-      const message = document.getElementById("message").value;
+<img src="https://images.unsplash.com/photo-1483985988355-763728e1935b">
 
-      const res = await fetch("/message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, message })
-      });
+</div>
 
-      const data = await res.json();
+</section>
 
-      document.getElementById("status").innerText = data.reply;
-    }
-  </script>
+<section>
+
+<h2 style="text-align:center">Place Order</h2>
+
+<form id="orderForm">
+
+<input
+id="name"
+placeholder="Full Name"
+required>
+
+<input
+id="phone"
+placeholder="Phone Number"
+required>
+
+<textarea
+id="measurements"
+placeholder="Enter Measurements">
+</textarea>
+
+<textarea
+id="details"
+placeholder="Describe Your Design">
+</textarea>
+
+<input
+type="file"
+id="photo">
+
+<button type="submit">
+Submit Order
+</button>
+
+<p id="result"></p>
+
+</form>
+
+</section>
+
+<section class="admin">
+
+<h2>Admin Login</h2>
+
+<input id="user" placeholder="Username">
+
+<input id="pass"
+type="password"
+placeholder="Password">
+
+<button onclick="login()">
+Login
+</button>
+
+<div id="orders"></div>
+
+</section>
+
+<script>
+
+document.getElementById("orderForm")
+.addEventListener("submit",
+async function(e){
+
+e.preventDefault();
+
+const file =
+document.getElementById("photo").files[0];
+
+let image="";
+
+if(file){
+
+const reader = new FileReader();
+
+reader.onload = async function(){
+
+image = reader.result;
+
+sendOrder(image);
+
+}
+
+reader.readAsDataURL(file);
+
+}else{
+
+sendOrder("");
+
+}
+
+});
+
+async function sendOrder(image){
+
+const response = await fetch("/order",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:
+document.getElementById("name").value,
+
+phone:
+document.getElementById("phone").value,
+
+measurements:
+document.getElementById("measurements").value,
+
+details:
+document.getElementById("details").value,
+
+image
+
+})
+
+});
+
+const data = await response.json();
+
+document.getElementById("result")
+.innerText = data.message;
+
+}
+
+async function login(){
+
+const username =
+document.getElementById("user").value;
+
+const password =
+document.getElementById("pass").value;
+
+const response =
+await fetch("/admin",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+username,
+password
+})
+
+});
+
+const data =
+await response.json();
+
+if(data.success){
+
+let html="<h3>Orders</h3>";
+
+data.orders.forEach(order=>{
+
+html += \`
+<div style="border:1px solid gray;padding:10px;margin:10px">
+
+<p><b>Name:</b> \${order.name}</p>
+
+<p><b>Phone:</b> \${order.phone}</p>
+
+<p><b>Measurements:</b>
+\${order.measurements}</p>
+
+<p><b>Details:</b>
+\${order.details}</p>
+
+</div>
+\`;
+
+});
+
+document.getElementById("orders")
+.innerHTML = html;
+
+}else{
+
+alert("Wrong Login");
+
+}
+
+}
+
+</script>
 
 </body>
 </html>
-  `);
+`);
 });
 
-// BACKEND API (receives messages)
-app.post("/message", (req, res) => {
-  const { name, message } = req.body;
+app.post("/order",(req,res)=>{
 
-  messages.push({
-    name,
-    message,
-    time: new Date()
-  });
+orders.push({
 
-  console.log("New message:", name, message);
+...req.body,
 
-  res.json({ reply: "Message received successfully ✔️" });
+date:new Date()
+
 });
 
-// view messages (admin)
-app.get("/messages", (req, res) => {
-  res.json(messages);
+res.json({
+message:"Order Submitted Successfully"
 });
 
-// start server
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+});
+
+app.post("/admin",(req,res)=>{
+
+const {username,password}
+= req.body;
+
+if(
+username===ADMIN_USERNAME &&
+password===ADMIN_PASSWORD
+){
+
+res.json({
+success:true,
+orders
+});
+
+}else{
+
+res.json({
+success:false
+});
+
+}
+
+});
+
+app.listen(3000,()=>{
+
+console.log(
+"Running at http://localhost:3000"
+);
+
 });
